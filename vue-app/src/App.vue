@@ -2,20 +2,24 @@
   <div id="app">
     <h1>Ollama Chat</h1>
     <div class="chat-container">
-      <div class="messages">
+      <div class="messages" ref="messagesContainer">
         <div v-for="(message, index) in messages" :key="index" :class="message.type">
           <pre>{{ message.text }}</pre>
         </div>
       </div>
-      <div class="input-container">
-        <input v-model="userInput" @keyup.enter="sendMessage" placeholder="Type your message...">
-        <button @click="sendMessage">Send</button>
+      <div class="input-container" :class="{ 'disabled': isLoading }">
+        <input v-model="userInput" @keyup.enter="sendMessage" placeholder="Type your message..." :disabled="isLoading">
+        <button @click="sendMessage" :disabled="isLoading">Send</button>
       </div>
+    </div>
+    <div v-if="isLoading" class="loader-overlay">
+      <div class="loader"></div>
     </div>
   </div>
 </template>
 
 <script>
+import './assests/main.css';
 import axios from 'axios';
 
 export default {
@@ -23,13 +27,15 @@ export default {
   data() {
     return {
       userInput: '',
-      messages: []
+      messages: [],
+      isLoading: false
     }
   },
   methods: {
     async sendMessage() {
-      if (this.userInput.trim() === '') return;
+      if (this.userInput.trim() === '' || this.isLoading) return;
 
+      this.isLoading = true;
       this.messages.push({ type: 'user', text: this.userInput });
 
       try {
@@ -61,70 +67,19 @@ export default {
       } catch (error) {
         console.error('Error:', error);
         this.messages.push({ type: 'error', text: 'An error occurred while fetching the response.' });
+      } finally {
+        this.isLoading = false;
+        this.userInput = '';
+        this.$nextTick(() => {
+          this.scrollToBottom();
+        });
       }
-
-      this.userInput = '';
+    },
+    scrollToBottom() {
+      const container = this.$refs.messagesContainer;
+      container.scrollTop = container.scrollHeight;
     }
   }
 }
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-
-.chat-container {
-  max-width: 600px;
-  margin: 0 auto;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 20px;
-}
-
-.messages {
-  height: 300px;
-  overflow-y: auto;
-  margin-bottom: 20px;
-  text-align: left;
-}
-
-.user, .bot, .error {
-  margin: 10px 0;
-  padding: 10px;
-  border-radius: 4px;
-}
-
-.user {
-  background-color: #e6f3ff;
-}
-
-.bot {
-  background-color: #f0f0f0;
-}
-
-.error {
-  background-color: #ffe6e6;
-}
-
-.input-container {
-  display: flex;
-}
-
-input {
-  flex-grow: 1;
-  padding: 10px;
-  margin-right: 10px;
-}
-
-button {
-  padding: 10px 20px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-</style>
