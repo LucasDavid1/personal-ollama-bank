@@ -1,6 +1,13 @@
 <template>
   <div id="app">
     <h1>Ollama Chat</h1>
+    <div class="model-selector">
+      <label for="model-select">Select Model:</label>
+      <select id="model-select" v-model="selectedModel">
+        <option value="llava">Llava</option>
+        <option value="llama3">Llama3</option>
+      </select>
+    </div>
     <div class="chat-container">
       <div class="messages" ref="messagesContainer">
         <div v-for="(message, index) in messages" :key="index" :class="message.type">
@@ -28,7 +35,8 @@ export default {
     return {
       userInput: '',
       messages: [],
-      isLoading: false
+      isLoading: false,
+      selectedModel: 'llava'
     }
   },
   methods: {
@@ -40,7 +48,7 @@ export default {
 
       try {
         const response = await axios.post('http://localhost:11434/api/generate', {
-          model: "llava",
+          model: this.selectedModel,
           prompt: this.userInput
         }, {
           responseType: 'text',
@@ -82,4 +90,3 @@ export default {
   }
 }
 </script>
-
