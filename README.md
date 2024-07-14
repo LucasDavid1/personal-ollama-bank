@@ -13,7 +13,8 @@ The script takes JSON-formatted bank statement data, typically generated from a 
 
 ## Usage
 
-1. `docker-compose up -d`
+1. `make up`
 2. Go to jupyter `localhost:8888` and test it on the created notebook
 
-![image](https://github.com/user-attachments/assets/edf2be07-b3b4-450b-bf39-f90333f523d2)
+![image](https://github.com/user-attachments/assets/086c5626-0d1d-41c5-abdb-a698f033723f)
+
